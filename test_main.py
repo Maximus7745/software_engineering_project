@@ -1,12 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from your_module import get_gmail_messages, analyze_message  # замените your_module на имя вашего файла без .py
+from main import get_gmail_messages, analyze_message  # замените 'main' на имя вашего файла без .py
 
-@patch('your_module.build')
-@patch('your_module.Credentials')
-@patch('your_module.InstalledAppFlow')
-@patch('your_module.pickle')
-@patch('your_module.os.path')
+@patch('main.build')
+@patch('main.Credentials')
+@patch('main.InstalledAppFlow')
+@patch('main.pickle')
+@patch('main.os.path')
 def test_get_gmail_messages(mock_os_path, mock_pickle, mock_installed_app_flow, mock_credentials, mock_build):
     # Мокаем данные
     mock_os_path.exists.return_value = False
@@ -41,7 +41,7 @@ def test_get_gmail_messages(mock_os_path, mock_pickle, mock_installed_app_flow, 
     assert result[0][1] == 'test@example.com'
     assert result[0][2] == 'Test snippet'
 
-@patch('your_module.pipeline')
+@patch('main.pipeline')
 def test_analyze_message(mock_pipeline):
     mock_pipeline.return_value = MagicMock(return_value=[{'label': 'phishing', 'score': 0.95}])
     message = "This is a phishing test message."
