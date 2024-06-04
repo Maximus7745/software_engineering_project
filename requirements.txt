@@ -1,3 +1,4 @@
+# Основные зависимости
 absl-py==2.1.0
 astunparse==1.6.3
 cachetools==5.3.3
@@ -59,5 +60,4 @@ tensorboard==2.16.2
 tensorboard-data-server==0.7.2
 tensorflow==2.16.1
 pytest==8.2.2
-unittest-mock==0.4.1
 transformers==4.29.2
