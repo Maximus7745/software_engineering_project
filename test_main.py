@@ -1,8 +1,9 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 from datetime import datetime, timezone
 import main
-import tkinter as tk
+import tempfile
+import os
 
 class TestMain(unittest.TestCase):
     
@@ -16,7 +17,11 @@ class TestMain(unittest.TestCase):
         creds = MagicMock()
         creds.valid = True
         mock_pickle_load.return_value = creds
-        
+
+        # Create a temporary token.pickle file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_token:
+            temp_token_name = temp_token.name
+
         # Mock Gmail API response
         service = MagicMock()
         messages = [
@@ -35,30 +40,40 @@ class TestMain(unittest.TestCase):
         mock_build.return_value = service
         
         # Call the function and check the results
-        messages = main.get_gmail_messages()
-        self.assertEqual(len(messages), 2)
-        self.assertEqual(messages[0][1], 'test2@example.com')
-        self.assertEqual(messages[1][1], 'test1@example.com')
+        try:
+            messages = main.get_gmail_messages()
+            self.assertEqual(len(messages), 2)
+            self.assertEqual(messages[0][1], 'test2@example.com')
+            self.assertEqual(messages[1][1], 'test1@example.com')
+        finally:
+            os.remove(temp_token_name)
     
     @patch('main.pipeline')
-    def test_analyze_message(self, mock_pipeline):
+    @patch('tkinter.Text')
+    @patch('tkinter.Tk')
+    def test_analyze_message(self, mock_tk, mock_text, mock_pipeline):
         # Mock pipeline
         pipe = MagicMock()
         pipe.return_value = [{'label': 'phishing', 'score': 0.9}]
         mock_pipeline.return_value = pipe
         
+        # Create a mock Text widget and root
+        mock_text_instance = Mock()
+        mock_text.return_value = mock_text_instance
+        mock_root = Mock()
+        mock_tk.return_value = mock_root
+
         # Create a sample message and call the analyze_message function
         sample_message = "This is a test phishing message."
-        root = tk.Tk()
-        right_text = tk.Text(root)
-        main.right_text = right_text
+        main.right_text = mock_text_instance
         main.pipe = pipe
         main.analyze_message(sample_message)
         
         # Check the results in the right_text widget
-        result_text = right_text.get(1.0, tk.END).strip()
-        self.assertIn("phishing", result_text)
-        self.assertIn("0.9000", result_text)
+        mock_text_instance.insert.assert_called_once()
+        args, kwargs = mock_text_instance.insert.call_args
+        self.assertIn("phishing", args[1])
+        self.assertIn("0.9000", args[1])
         
 if __name__ == '__main__':
     unittest.main()
