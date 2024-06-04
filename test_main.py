@@ -1,50 +1,63 @@
-import pytest
+import unittest
 from unittest.mock import patch, MagicMock
-from main import get_gmail_messages, analyze_message  # замените 'main' на имя вашего файла без .py
+from datetime import datetime, timezone
+import main
 
-@patch('main.build')
-@patch('main.Credentials')
-@patch('main.InstalledAppFlow')
-@patch('main.pickle')
-@patch('main.os.path')
-def test_get_gmail_messages(mock_os_path, mock_pickle, mock_installed_app_flow, mock_credentials, mock_build):
-    # Мокаем данные
-    mock_os_path.exists.return_value = False
-    mock_creds = MagicMock()
-    mock_creds.valid = True
-    mock_creds.expired = False
-    mock_creds.refresh_token = None
-    mock_credentials.return_value = mock_creds
-    mock_service = MagicMock()
-    mock_build.return_value = mock_service
-
-    messages = {
-        'messages': [
-            {'id': '1'},
-            {'id': '2'},
+class TestMain(unittest.TestCase):
+    
+    @patch('main.build')
+    @patch('main.pickle.load')
+    @patch('main.pickle.dump')
+    @patch('main.os.path.exists')
+    def test_get_gmail_messages(self, mock_exists, mock_pickle_load, mock_pickle_dump, mock_build):
+        # Setup mock return values
+        mock_exists.return_value = True
+        creds = MagicMock()
+        creds.valid = True
+        mock_pickle_load.return_value = creds
+        
+        # Mock Gmail API response
+        service = MagicMock()
+        messages = [
+            {'id': '1', 'snippet': 'Test message 1'},
+            {'id': '2', 'snippet': 'Test message 2'}
         ]
-    }
-    message = {
-        'payload': {
-            'headers': [
-                {'name': 'Date', 'value': 'Mon, 1 Jan 2020 00:00:00 -0000'},
-                {'name': 'From', 'value': 'test@example.com'}
-            ]
-        },
-        'snippet': 'Test snippet'
-    }
-    mock_service.users().messages().list().execute.return_value = messages
-    mock_service.users().messages().get().execute.return_value = message
-
-    result = get_gmail_messages()
-    assert len(result) == 2
-    assert result[0][1] == 'test@example.com'
-    assert result[0][2] == 'Test snippet'
-
-@patch('main.pipeline')
-def test_analyze_message(mock_pipeline):
-    mock_pipeline.return_value = MagicMock(return_value=[{'label': 'phishing', 'score': 0.95}])
-    message = "This is a phishing test message."
-    result = analyze_message(message)
-    assert result[0]['label'] == 'phishing'
-    assert result[0]['score'] == 0.95
+        service.users().messages().list().execute.return_value = {'messages': messages}
+        service.users().messages().get().execute.side_effect = [
+            {'payload': {'headers': [{'name': 'Date', 'value': 'Mon, 1 Jan 2023 00:00:00 -0000'},
+                                     {'name': 'From', 'value': 'test1@example.com'}]},
+             'snippet': 'Test message 1'},
+            {'payload': {'headers': [{'name': 'Date', 'value': 'Tue, 2 Jan 2023 00:00:00 -0000'},
+                                     {'name': 'From', 'value': 'test2@example.com'}]},
+             'snippet': 'Test message 2'}
+        ]
+        mock_build.return_value = service
+        
+        # Call the function and check the results
+        messages = main.get_gmail_messages()
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(messages[0][1], 'test2@example.com')
+        self.assertEqual(messages[1][1], 'test1@example.com')
+    
+    @patch('main.pipeline')
+    def test_analyze_message(self, mock_pipeline):
+        # Mock pipeline
+        pipe = MagicMock()
+        pipe.return_value = [{'label': 'phishing', 'score': 0.9}]
+        mock_pipeline.return_value = pipe
+        
+        # Create a sample message and call the analyze_message function
+        sample_message = "This is a test phishing message."
+        root = tk.Tk()
+        right_text = tk.Text(root)
+        main.right_text = right_text
+        main.pipe = pipe
+        main.analyze_message(sample_message)
+        
+        # Check the results in the right_text widget
+        result_text = right_text.get(1.0, tk.END).strip()
+        self.assertIn("phishing", result_text)
+        self.assertIn("0.9000", result_text)
+        
+if __name__ == '__main__':
+    unittest.main()
