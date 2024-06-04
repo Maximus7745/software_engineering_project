@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timezone
 import main
+import tkinter as tk
 
 class TestMain(unittest.TestCase):
     
