@@ -8,7 +8,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from email.utils import parsedate_to_datetime
 from datetime import timezone
-import time
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 CHECK_INTERVAL = 120000
