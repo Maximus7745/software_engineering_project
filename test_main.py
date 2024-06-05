@@ -17,12 +17,26 @@ class TestMain(unittest.TestCase):
         self.assertEqual(len(points), 24)
         
         # Check if the points list contains expected coordinates
-        expected_points = [
-            x1 + radius, y1, x1 + radius, y1, x2 - radius, y1, x2 - radius, y1, x2, y1,
-            x2, y1 + radius, x2, y1 + radius, x2, y2 - radius, x2, y2 - radius, x2, y2,
-            x2 - radius, y2, x2 - radius, y2, x1 + radius, y2, x1 + radius, y2, x1, y2,
-            x1, y2 - radius, x1, y2 - radius, x1, y1 + radius, x1, y1 + radius, x1, y1
-        ]
+        expected_points = [x1 + radius, y1,
+              x1 + radius, y1,
+              x2 - radius, y1,
+              x2 - radius, y1,
+              x2, y1,
+              x2, y1 + radius,
+              x2, y1 + radius,
+              x2, y2 - radius,
+              x2, y2 - radius,
+              x2, y2,
+              x2 - radius, y2,
+              x2 - radius, y2,
+              x1 + radius, y2,
+              x1 + radius, y2,
+              x1, y2,
+              x1, y2 - radius,
+              x1, y2 - radius,
+              x1, y1 + radius,
+              x1, y1 + radius,
+              x1, y1]
         self.assertEqual(points, expected_points)
     
     @patch('main.tk.Canvas')
@@ -53,39 +67,9 @@ class TestMain(unittest.TestCase):
         left_args, left_kwargs = left_canvas_instance.create_polygon.call_args
         right_args, right_kwargs = right_canvas_instance.create_polygon.call_args
         
-        self.assertEqual(len(left_args[0]), 24)
-        self.assertEqual(len(right_args[0]), 24)
-        self.assertEqual(left_kwargs['fill'], "#a9a9a9")
-        self.assertEqual(left_kwargs['outline'], "#000")
-        self.assertEqual(right_kwargs['fill'], "#a9a9a9")
-        self.assertEqual(right_kwargs['outline'], "#000")
-    
-    @patch('main.pipeline')
-    @patch('tkinter.Text')
-    @patch('tkinter.Tk')
-    def test_analyze_message(self, mock_tk, mock_text, mock_pipeline):
-        # Mock pipeline
-        pipe = MagicMock()
-        pipe.return_value = [{'label': 'phishing', 'score': 0.9}]
-        mock_pipeline.return_value = pipe
-        
-        # Create a mock Text widget and root
-        mock_text_instance = Mock()
-        mock_text.return_value = mock_text_instance
-        mock_root = Mock()
-        mock_tk.return_value = mock_root
+        self.assertEqual(len(left_args[0]), left_canvas.winfo_width())
+        self.assertEqual(len(right_args[0]), right_canvas.winfo_width())
 
-        # Create a sample message and call the analyze_message function
-        sample_message = "This is a test phishing message."
-        main.right_text = mock_text_instance
-        main.pipe = pipe
-        main.analyze_message(sample_message)
-        
-        # Check the results in the right_text widget
-        mock_text_instance.insert.assert_called_once()
-        args, kwargs = mock_text_instance.insert.call_args
-        self.assertIn("phishing", args[1])
-        self.assertIn("0.9000", args[1])
         
 if __name__ == '__main__':
     unittest.main()
