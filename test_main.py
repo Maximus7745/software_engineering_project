@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from your_module import create_rounded_rectangle, draw_rounded_rectangles
+from main import create_rounded_rectangle, draw_rounded_rectangles
 
 def test_create_rounded_rectangle():
     canvas = MagicMock()
