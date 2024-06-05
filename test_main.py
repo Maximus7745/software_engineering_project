@@ -67,8 +67,8 @@ class TestMain(unittest.TestCase):
         left_args, left_kwargs = left_canvas_instance.create_polygon.call_args
         right_args, right_kwargs = right_canvas_instance.create_polygon.call_args
         
-        self.assertEqual(len(left_args[0]), left_canvas.winfo_width())
-        self.assertEqual(len(right_args[0]), right_canvas.winfo_width())
+        self.assertEqual(len(left_args[0]), left_canvas_instance.winfo_width())
+        self.assertEqual(len(right_args[0]), right_canvas_instance.winfo_width())
 
         
 if __name__ == '__main__':
