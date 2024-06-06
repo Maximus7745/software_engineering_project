@@ -1,1 +1,1 @@
-token = "filename.json"
+token_name = "filename.json"
