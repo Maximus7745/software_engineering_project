@@ -8,6 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from email.utils import parsedate_to_datetime
 from datetime import timezone
+from config import token_name
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 CHECK_INTERVAL = 120000
@@ -24,7 +25,7 @@ def get_gmail_messages():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'client_secret_251619734123-9l0i54dq8vdjkrb7vijq8mffrgseonmp.apps.googleusercontent.com.json', SCOPES)
+                token_name, SCOPES)
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
