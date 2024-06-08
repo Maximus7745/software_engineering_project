@@ -2,7 +2,7 @@ from transformers import pipeline
 
 class TextAnalyzer:
     def __init__(self):
-        self.pipe = pipeline("text-classification", model="ealvaradob/bert-finetuned-phishing")
+        self.pipe = pipeline("text-classification", model="ealvaradob/bert-finetuned-phishing", framework='pt')
 
     def analyze(self, message):
         result = self.pipe(message)[0]
