@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from main import create_rounded_rectangle
+from ui import create_rounded_rectangle
 
 
 def test_create_rounded_rectangle():
