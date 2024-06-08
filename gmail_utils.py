@@ -7,6 +7,7 @@ from email.utils import parsedate_to_datetime
 from datetime import timezone
 from config import token_name, SCOPES
 
+
 def get_gmail_service():
     creds = None
     if os.path.exists('token.pickle'):
@@ -21,6 +22,7 @@ def get_gmail_service():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return build('gmail', 'v1', credentials=creds)
+
 
 def fetch_gmail_messages(service, max_results=10):
     results = service.users().messages().list(userId='me', maxResults=max_results).execute()
